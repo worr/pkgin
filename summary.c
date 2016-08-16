@@ -699,14 +699,33 @@ update_remotedb(int verbose)
 int
 update_db(int which, char **pkgkeep, int verbose)
 {
+	pid_t child = -1;
+	int stat_loc = 0;
+
 	if (!have_enough_rights())
 		return EXIT_FAILURE;
 
-	/* always check for LOCAL_SUMMARY updates */
-	update_localdb(pkgkeep);
+	child = fork();
+	switch (child) {
+		case 0:
+			if (dropprivs(4710, 4710))
+				err(1, "dropprivs");
 
-	if (which == REMOTE_SUMMARY)
-		update_remotedb(verbose);
+			/* always check for LOCAL_SUMMARY updates */
+			update_localdb(pkgkeep);
+
+			if (which == REMOTE_SUMMARY)
+				update_remotedb(verbose);
+
+			exit(0);
+			break;
+
+		case -1:
+			return EXIT_FAILURE;
+
+		default:
+			(void) waitpid(child, &stat_loc, 0);
+	}
 
 	/* columns name not needed anymore */
 	if (cols.name != NULL) {

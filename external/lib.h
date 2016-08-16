@@ -447,6 +447,9 @@ struct pkg_vulnerabilities *parse_pkg_vulnerabilities(const char *, size_t, int)
 struct pkg_vulnerabilities *read_pkg_vulnerabilities(const char *, int, int);
 void free_pkg_vulnerabilities(struct pkg_vulnerabilities *);
 
+/* Dropping privs */
+int dropprivs(uid_t, gid_t);
+
 /* Externs */
 extern Boolean Verbose;
 extern Boolean Fake;
